@@ -6,13 +6,13 @@ const {Pool} = pg;
 
 const connection = new Pool ({
 
-    //connectionString: process.env.DATABASE_URL 
+    connectionString: process.env.DATABASE_URL 
     
-    user: 'postgres',
+    /* user: 'postgres',
     password: 'orkutorkut',
     host: 'localhost',
     port: 5432,
-    database: 'boardcamp'
+    database: 'boardcamp' */
 });
 
 export default connection;
