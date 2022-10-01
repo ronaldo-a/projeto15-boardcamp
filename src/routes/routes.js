@@ -2,7 +2,7 @@ import express from 'express';
 import { getCategories, insertCategory } from "../controllers/categoryController.js";
 import { getCustomers, getCustomersById, insertCustomer, updateCustomer } from '../controllers/customerController.js';
 import { getGames, insertGame } from '../controllers/gameController.js';
-import { getRentals, insertRental } from '../controllers/rentalController.js';
+import { finishRental, getRentals, insertRental } from '../controllers/rentalController.js';
 import { verifyCategoryName } from '../middlewares/categoryMiddleware.js';
 
 const router = express.Router();
@@ -17,5 +17,6 @@ router.post("/customers", insertCustomer);
 router.put("/customers/:id", updateCustomer);
 router.get("/rentals", getRentals);
 router.post("/rentals", insertRental);
+router.post("/rentals/:id/return", finishRental);
 
 export {router};

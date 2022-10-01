@@ -46,4 +46,18 @@ async function insertRental (req, res) {
     
 }
 
-export {getRentals, insertRental};
+async function finishRental (req, res) {
+    const {id} = req.params;
+    const realReturnDate = dayjs().format("DD/MM/YYYY");
+
+    try {
+        const returnDate = (await connection.query(`SELECT rental."returnDate" FROM rentals WHERE id=${id}`)).rows[0];
+        const delayFee = (realReturnDate - returnDate); 
+        await connection.query(`UPDATE rentals SET "returnDate"=${returnDate}, "delayFee"=${delayFee} WHERE id=${id};`)
+        return res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
+export {getRentals, insertRental, finishRental};
