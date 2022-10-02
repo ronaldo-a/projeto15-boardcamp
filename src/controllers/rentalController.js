@@ -2,9 +2,18 @@ import connection from "../db.js";
 import dayjs from "dayjs";
 
 async function getRentals (req, res) {
-    try {
-        const rentals = (await connection.query(`SELECT * FROM rentals;`)).rows
+    const {customerId, gameId} = req.query;
+    let rentals = [];
 
+    try {
+        if (customerId !== undefined) {
+            rentals = (await connection.query(`SELECT * FROM rentals WHERE "customerId"=${customerId};`)).rows
+        } else if (gameId !== undefined) {
+            rentals = (await connection.query(`SELECT * FROM rentals WHERE "gameId"=${gameId};`)).rows
+        } else {
+            rentals = (await connection.query(`SELECT * FROM rentals;`)).rows;
+        }
+        
         for (let i = 0; i < rentals.length; i++) {
             const gameid = rentals[i].gameId;
             const customerid = rentals[i].customerId;
