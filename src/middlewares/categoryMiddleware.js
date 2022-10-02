@@ -1,19 +1,26 @@
 import connection from "../db.js";
+import Joi from "joi";
+
+const categorySchema = Joi.object({
+    name: Joi.string().empty(" ").required()
+})
 
 async function verifyCategoryName (req, res, next) {
     const {name} = req.body;
-    console.log(name);
 
-    if (!name) {
-        return res.sendStatus(400);
-    }
+    const validateCategory = categorySchema.validate(req.body);
+    
+    if (validateCategory.error) {
+        return res.status(400).send(validateCategory.error.details[0].message);
+    };
 
     try {
-        const categories = await (connection.query("SELECT name FROM categories")).rows;
+        const categories = (await (connection.query("SELECT name FROM categories;"))).rows;
+        console.log(categories);
 
-        if (categories) {
-            for (i =0; i < categories.length; i++) {
-                if (categories[i].name === name) {
+        if (categories.length !== 0) {
+            for (let i = 0; i < categories.length; i++) {
+                if (categories[i].name.toLowerCase() === name.toLowerCase()) {
                     return res.sendStatus(409);
                 }
             }
