@@ -48,16 +48,30 @@ async function insertRental (req, res) {
 
 async function finishRental (req, res) {
     const {id} = req.params;
-    const realReturnDate = dayjs().format("DD/MM/YYYY");
+    const returnDate = dayjs().format("DD/MM/YYYY");
 
     try {
-        const returnDate = (await connection.query(`SELECT rental."returnDate" FROM rentals WHERE id=${id}`)).rows[0];
-        const delayFee = (realReturnDate - returnDate); 
-        await connection.query(`UPDATE rentals SET "returnDate"=${returnDate}, "delayFee"=${delayFee} WHERE id=${id};`)
+        const rentalData = (await connection.query(`SELECT rentals."rentDate", rentals."daysRented", games."pricePerDay" FROM rentals JOIN games ON rentals."gameId" = games.id WHERE rentals.id=${id};`)).rows[0];
+        const limitReturnDay = dayjs(rentalData.rentDate).add(rentalData.daysRented, "day");
+        const delayFee = (dayjs(returnDate).diff(limitReturnDay, "day")) * rentalData.pricePerDay;
+
+        await connection.query(`UPDATE rentals SET "returnDate"='${returnDate}', "delayFee"=${delayFee} WHERE id=${id};`)
+        
         return res.sendStatus(200);
     } catch (error) {
         res.sendStatus(500);
     }
 }
 
-export {getRentals, insertRental, finishRental};
+async function deleteRental (req, res) {
+    const {id} = req.params;
+
+    try {
+        await connection.query(`DELETE FROM rentals WHERE id=${id};`)
+        res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
+export {getRentals, insertRental, finishRental, deleteRental};
