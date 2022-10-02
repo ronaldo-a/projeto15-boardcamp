@@ -8,6 +8,10 @@ async function getRentals (req, res) {
         for (let i = 0; i < rentals.length; i++) {
             const gameid = rentals[i].gameId;
             const customerid = rentals[i].customerId;
+            rentals[i].rentDate = dayjs(rentals[i].rentDate).format("DD/MM/YYYY");
+            if (rentals[i].returnDate !== null) {
+                rentals[i].returnDate = dayjs(rentals[i].returnDate).format("DD/MM/YYYY");
+            }
 
             const customer = (await connection.query(`SELECT customers.id, customers.name FROM customers WHERE id = ${customerid}`)).rows[0];
             const game = (await connection.query(`SELECT games.id, games.name, games."categoryId", categories.name as "categoryName" FROM games 
