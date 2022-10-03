@@ -6,8 +6,10 @@ async function getGames (req, res) {
 
     try {
         const games = await connection.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id`);
+        console.log(games);
         if (subName) {
-            const filteredGames = games.rows.filter(game => game.name.startsWith(subName));
+            const filteredGames = games.rows.filter(game => game.name.toLowerCase().startsWith(subName.toLowerCase()));
+            console.log(filteredGames);
             return res.status(200).send(filteredGames);
         }
             
@@ -20,8 +22,8 @@ async function getGames (req, res) {
 }    
 
 async function insertGame (req, res) {
-    const {name, image, stockTotal, categoryId, pricePerDay} = req.body;
-    console.log(req.body);
+    const {name, image, stockTotal, categoryId, pricePerDay} = res.locals.game;    
+    console.log(res.locals.game);
 
     try {
         await connection.query(`INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ('${name}', '${image}', ${stockTotal}, ${categoryId}, ${pricePerDay})`);
