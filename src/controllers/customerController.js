@@ -1,16 +1,19 @@
 import connection from "../db.js";
+import dayjs from "dayjs";
 
 async function getCustomers (req, res) {
     const subCpf = req.query.cpf;
 
     try {
-        const customers = await connection.query("SELECT * FROM customers;");
+        let customers = (await connection.query("SELECT * FROM customers;")).rows;
         if (subCpf) {
-            const filteredCustomers = customers.rows.filter(customer => customer.cpf.startsWith(subCpf));
+            let filteredCustomers = customers.filter(customer => customer.cpf.startsWith(subCpf));
+            filteredCustomers.forEach(customer => customer.birthday = dayjs(customers.birthday).format("YYYY-MM-DD"));
             return res.status(200).send(filteredCustomers);
         }
 
-        return res.status(200).send(customers.rows);
+        customers.forEach(customer => customer.birthday = dayjs(customer.birthday).format("YYYY-MM-DD"));
+        return res.status(200).send(customers);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -20,22 +23,24 @@ async function getCustomersById (req, res) {
     const id = req.params.id;
 
     try {
-        const customer = await connection.query(`SELECT * FROM customers WHERE id = ${id}`);
-        if (customer.rows.length === 0) {
+        const customer = (await connection.query(`SELECT * FROM customers WHERE id = $1`, [id])).rows[0];
+       
+        if (!customer) {
             return res.sendStatus(404);
         }
 
-        return res.status(200).send(customer.rows[0]);
+        customer.birthday = dayjs(customer.birthday).format("YYYY-MM-DD");
+        return res.status(200).send(customer);
     } catch (error) {
         res.sendStatus(500);
     }
 }
 
 async function insertCustomer (req, res) {
-    const {name, phone, cpf, birthday} = req.body; 
+    const {name, phone, cpf, birthday} = res.locals.customer; 
 
     try {
-        await connection.query(`INSERT INTO customers (name, phone, cpf, birthday) VALUES ('${name}', '${phone}', '${cpf}', '${birthday}')`);
+        await connection.query(`INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, '${phone}', '${cpf}', '${birthday}')`, [name]);
         res.sendStatus(201);
     } catch (error) {
         res.sendStatus(500);
@@ -44,10 +49,10 @@ async function insertCustomer (req, res) {
 
 async function updateCustomer (req, res) {
     const id = req.params.id;
-    const {name, phone, cpf, birthday} = req.body;
+    const {name, phone, cpf, birthday} = res.locals.customer;
 
     try {
-        await connection.query (`UPDATE customers SET name='${name}', phone='${phone}', cpf='${cpf}', birthday='${birthday}' WHERE id = ${id};`);
+        await connection.query (`UPDATE customers SET name=$1, phone='${phone}', cpf='${cpf}', birthday='${birthday}' WHERE id = $2;`, [name, id]);
         res.sendStatus(200);
     } catch (error) {
         res.sendStatus(500);
