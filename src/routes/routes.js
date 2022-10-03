@@ -4,7 +4,7 @@ import { getCustomers, getCustomersById, insertCustomer, updateCustomer } from '
 import { getGames, insertGame } from '../controllers/gameController.js';
 import { deleteRental, finishRental, getRentals, insertRental } from '../controllers/rentalController.js';
 import { verifyCategoryName } from '../middlewares/categoryMiddleware.js';
-import { verifyCustomer } from '../middlewares/customerMiddleware.js';
+import { verifyCustomer, verifyUpdateCustomer } from '../middlewares/customerMiddleware.js';
 import { validateGame } from '../middlewares/gameMiddleware.js';
 import { isRentalActive, isRentalFinished, verifyRental } from '../middlewares/rentalMiddleware.js';
 
@@ -17,7 +17,7 @@ router.post("/games", validateGame, insertGame);
 router.get("/customers", getCustomers);
 router.get("/customers/:id", getCustomersById);
 router.post("/customers", verifyCustomer, insertCustomer);
-router.put("/customers/:id", verifyCustomer, updateCustomer);
+router.put("/customers/:id", verifyUpdateCustomer, updateCustomer);
 router.get("/rentals", getRentals);
 router.post("/rentals", verifyRental, insertRental);
 router.post("/rentals/:id/return", isRentalActive, finishRental);

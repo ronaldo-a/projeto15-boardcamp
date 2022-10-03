@@ -48,8 +48,8 @@ async function insertCustomer (req, res) {
 }
 
 async function updateCustomer (req, res) {
-    const id = req.params.id;
-    const {name, phone, cpf, birthday} = res.locals.customer;
+    
+    const {name, phone, cpf, birthday, id} = res.locals.customer;
 
     try {
         await connection.query (`UPDATE customers SET name=$1, phone='${phone}', cpf='${cpf}', birthday='${birthday}' WHERE id = $2;`, [name, id]);

@@ -27,4 +27,29 @@ async function verifyCustomer (req, res, next) {
     next();
 }
 
-export {verifyCustomer};
+async function verifyUpdateCustomer (req, res, next) {
+    const {cpf} = req.body;
+    const {id} = req.params;
+
+    const validation = customerSchema.validate(req.body, {abortEarly: false});
+
+    if (validation.error) {
+        const errors = validation.error.details.map(detail => detail.message);
+        return res.status(400).send(errors)
+    }
+
+    const isId = (await connection.query(`SELECT * FROM customers WHERE id=$1`, [id])).rows[0];
+    if (!isId) {
+        return res.sendStatus(404);
+    }
+
+    const isCpf = (await connection.query(`SELECT * FROM customers WHERE id<>$1 AND cpf='${cpf}';`, [id])).rows[0];
+    if (isCpf) {
+        return res.sendStatus(409);
+    }
+
+    res.locals.customer = {...req.body, id};
+    next();
+}
+
+export {verifyCustomer, verifyUpdateCustomer};
