@@ -6,6 +6,7 @@ import { deleteRental, finishRental, getRentals, insertRental } from '../control
 import { verifyCategoryName } from '../middlewares/categoryMiddleware.js';
 import { verifyCustomer } from '../middlewares/customerMiddleware.js';
 import { validateGame } from '../middlewares/gameMiddleware.js';
+import { isRentalActive, isRentalFinished, verifyRental } from '../middlewares/rentalMiddleware.js';
 
 const router = express.Router();
 
@@ -18,8 +19,8 @@ router.get("/customers/:id", getCustomersById);
 router.post("/customers", verifyCustomer, insertCustomer);
 router.put("/customers/:id", verifyCustomer, updateCustomer);
 router.get("/rentals", getRentals);
-router.post("/rentals", insertRental);
-router.post("/rentals/:id/return", finishRental);
-router.delete("/rentals/:id", deleteRental);
+router.post("/rentals", verifyRental, insertRental);
+router.post("/rentals/:id/return", isRentalActive, finishRental);
+router.delete("/rentals/:id", isRentalFinished, deleteRental);
 
 export {router};
